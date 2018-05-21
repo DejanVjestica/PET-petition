@@ -1,0 +1,26 @@
+=======================
+routes:
+1. GET /petition
+2. POST /petition
+3. GET /thanks
+4. GET /signers
+========================
+middlewares:
+1. express.static
+2. body-parser
+3. cookie-parser
+========================
+queries:
+1. INSERT INTO signatures (POST /petition)
+2. SELECT first, last FROM signatures (GET /signers)
+========================
+templates (views):
+1. petition
+2. thanks
+3. signers
+4. maybe a layout ?
+================0=======
+static assets:
+1. canvas.js
+2. styles.css
+3. images
