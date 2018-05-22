@@ -1,2 +1,16 @@
-{{message}}
-{{> img}}
+<section class="petition">
+	{{> img}}
+	<h1>{{message}}</h1>
+
+	<form class="petition-form" method="post">
+		<label><input type="text" name="first" />First name</label>
+		<label><input type="text" name="last" />Last name</label>
+		<input id="sig" type="hidden" name="sig">
+		<input id="sig" type="hidden" name="_csrf" value="{{csrfToken}}">
+		<p>Sign Here</p>
+		<canvas id="canv" class="canv" width="300" height="200"></canvas>
+		<input class="submit" type="submit" value="Submit">
+		<!-- <button>submit</button> -->
+	</form>
+
+</section>

@@ -4,57 +4,116 @@ const app = express();
 
 // const fs = require("fs");
 const hb = require("express-handlebars");
-
+const db = require("./db");
+const csurf = require("csurf");
+const cookieSession = require("cookie-session");
 // Authenticate
 // const basicAuth = require("basic-auth");
 const urlPublic = __dirname + "/public";
+
+// const projects = fs.readdirSync(urlPublic + "/projects");
 
 // =====================================================
 // ==================== Midleware  =====================
 // =====================================================
 
-// handlebars
+// handlebars ------------------------------------------
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
-// body parser
+
+// body parser -----------------------------------------
 app.use(
     require("body-parser").urlencoded({
         extended: false
     })
 );
-// cookie parser
+// cookie parser ---------------------------------------
 app.use(require("cookie-parser")());
 
 app.use(express.static(urlPublic));
+
+//
+app.use(
+    cookieSession({
+        secret: `I'm always angry.`,
+        maxAge: 1000 * 60 * 60 * 24 * 14
+    })
+);
+app.use(csurf());
+app.use(function(req, res, next) {
+    res.locals.csrfToken = req.csrfToken();
+    res.setHeader("X-Frame", "DENY");
+    next();
+});
 // =====================================================
 // ==================== Routes  ========================
 // =====================================================
 
-// const projects = fs.readdirSync(urlPublic + "/projects");
-// Home page route -----------------------
+// Home page route, it redirect to petition url get request-----------------------
 app.get("/", (req, res) => {
     res.redirect("/petition");
 });
+// Petition route ------------------------------------
 app.get("/petition", (req, res) => {
+    // console.log(db);
+    if (req.session.sigId) {
+        res.redirect("/thanks");
+        return;
+    }
     res.render("petition", {
         layout: "main",
-        message:
-            "Sign our petition and help us bring lows that gives human right to all animals",
+        message: "Sign our petition to help us give animals human",
         img: "/images/animalRights.jpg"
     });
-    console.log(res.img);
 });
-app.post("/petition", (req, res) => {});
-app.get("/thanks", (req, res) => {});
-app.get("/signers", (req, res) => {});
-
-// app.get("*", (req, res) => {
-//     // res.redirect("/");
-//     res.render("404", {
-//         layout: "main",
-//         message: "File you are loocking for does not exist on this server"
-//     });
-// });
+app.post("/petition", (req, res) => {
+    if (req.session.sigId) {
+        res.redirect("/thanks");
+        return;
+    }
+    // //
+    // console.log(req.body.first, req.body.last, req.body.sig);
+    db
+        .signPetition(req.body.first, req.body.last, req.body.sig)
+        .then(function(result) {
+            const sigId = result.rows[0];
+            req.session.sigId = sigId;
+            // console.log(req.session);
+            res.redirect("/thanks");
+        })
+        .catch(function(e) {
+            console.log(e);
+        });
+});
+// thanks route
+app.get("/thanks", (req, res) => {
+    if (!req.session.sigId) {
+        res.redirect("/petition");
+        return;
+    }
+    //
+    res.render("thanks", {
+        layout: "main",
+        message: "Thank you for signing our petition",
+        img: "/images/animalRights.jpg"
+    });
+});
+// signers route
+app.get("/signers", (req, res) => {
+    if (!req.session.sigId) {
+        res.redirect("/petition");
+        return;
+    }
+    //
+});
+// this rout adress all request and return 404 if file doesent exist
+app.get("*", (req, res) => {
+    // res.redirect("/");
+    res.render("404", {
+        layout: "main",
+        message: "File you are loocking for does not exist on this server"
+    });
+});
 // =================================================
 // ===============  End of server ==================
 app.listen(8080, () => console.log("Listening on port 8080"));
