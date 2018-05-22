@@ -76,7 +76,7 @@ app.post("/petition", (req, res) => {
     db
         .signPetition(req.body.first, req.body.last, req.body.sig)
         .then(function(result) {
-            const sigId = result.rows[0];
+            const sigId = result.rows[0].id;
             req.session.sigId = sigId;
             // console.log(req.session);
             res.redirect("/thanks");
@@ -92,11 +92,20 @@ app.get("/thanks", (req, res) => {
         return;
     }
     //
-    res.render("thanks", {
-        layout: "main",
-        message: "Thank you for signing our petition",
-        img: "/images/animalRights.jpg"
-    });
+    console.log("checking a ssesion", req.session);
+    db
+        .getSignatureById(req.session.sigId)
+        .then(function(result) {
+            res.render("thanks", {
+                layout: "main",
+                message: "Thank you for signing our petition",
+                img: "/images/animalRights.jpg",
+                signature: result
+            });
+        })
+        .catch(function(e) {
+            console.log("there is a error in get thanks", e);
+        });
 });
 // signers route
 app.get("/signers", (req, res) => {

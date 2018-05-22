@@ -10,3 +10,19 @@ exports.signPetition = function(first, last, sig) {
         [first, last, sig]
     );
 };
+
+exports.getSignatureById = function(sigId) {
+    return db
+        .query("SELECT signature FROM signatures WHERE id=$1", [sigId])
+        .then(function(results) {
+            return results.rows[0].signature;
+        });
+};
+
+exports.signers = function() {
+    return db
+        .query("SELECT firstName, lastName FROM signatures")
+        .then(function(results) {
+            return results.rows;
+        });
+};
