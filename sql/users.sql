@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS signatures;
 
-CREATE TABLE signatures(
+CREATE TABLE users(
    id SERIAL PRIMARY KEY,
-   user_id INTEGER NOT NULL,
    first VARCHAR(200) NOT NULL,
    last VARCHAR(200) NOT NULL,
-   signature TEXT NOT NULL
+   email VARCHAR(200) NOT NULL UNIQUE,
+   hash_password VARCHAR(100) NOT NULL
 );

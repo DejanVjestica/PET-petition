@@ -1,26 +1,19 @@
 // express
 const express = require("express");
 const app = express();
-
-// const fs = require("fs");
+//
 const hb = require("express-handlebars");
-const db = require("./db");
 const csurf = require("csurf");
 const cookieSession = require("cookie-session");
-// Authenticate
-// const basicAuth = require("basic-auth");
+// custom mdules
+const db = require("./db");
 const urlPublic = __dirname + "/public";
-
-// const projects = fs.readdirSync(urlPublic + "/projects");
-
 // =====================================================
 // ==================== Midleware  =====================
 // =====================================================
-
 // handlebars ------------------------------------------
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
-
 // body parser -----------------------------------------
 app.use(
     require("body-parser").urlencoded({
@@ -29,16 +22,16 @@ app.use(
 );
 // cookie parser ---------------------------------------
 app.use(require("cookie-parser")());
-
+// public files ----------------------------------------
 app.use(express.static(urlPublic));
-
-//
+// cookie session ---------------------------------------
 app.use(
     cookieSession({
         secret: `I'm always angry.`,
         maxAge: 1000 * 60 * 60 * 24 * 14
     })
 );
+// csurf creates a session ----------------------------
 app.use(csurf());
 app.use(function(req, res, next) {
     res.locals.csrfToken = req.csrfToken();
@@ -48,35 +41,74 @@ app.use(function(req, res, next) {
 // =====================================================
 // ==================== Routes  ========================
 // =====================================================
-
-// Home page route, it redirect to petition url get request-----------------------
+// Home page route, ------------------------------------
 app.get("/", (req, res) => {
-    res.redirect("/petition");
+    res.redirect("/register");
+});
+// register route ---------------------------------------
+app.get("/register", requireLoggedOut, (req, res) => {
+    console.log("get register in");
+    res.render("register", {
+        layout: "main",
+        message: "Please register new acount",
+        img: "/images/animalRights.jpg"
+    });
+});
+app.post("/register", (req, res) => {
+    //
+    db
+        .hashPassword(req.body.password)
+        .then(function(hashedPassword) {
+            //
+            db
+                .registerUser(
+                    req.body.first,
+                    req.body.last,
+                    req.body.email,
+                    hashedPassword
+                )
+                .then(function(body) {
+                    console.log(body);
+                    let userId = body.rows[0].id;
+                    req.session.userId = userId;
+                    res.redirect("/petition");
+                })
+                .catch(function(e) {
+                    console.log(e);
+                });
+        })
+        .catch(function(e) {
+            console.log(e);
+        });
+
+    // ------------------------
+});
+// login route ---------------------------------------
+app.get("/login", requireLoggedOut, (req, res) => {
+    //
+});
+app.post("/login", requireLoggedOut, (req, res) => {
+    //
 });
 // Petition route ------------------------------------
-app.get("/petition", (req, res) => {
-    // console.log(db);
-    if (req.session.sigId) {
-        res.redirect("/thanks");
-        return;
-    }
+app.get("/petition", requireNoSignature, (req, res) => {
     res.render("petition", {
         layout: "main",
         message: "Sign our petition to help us give animals human",
         img: "/images/animalRights.jpg"
     });
 });
-app.post("/petition", (req, res) => {
-    if (req.session.sigId) {
-        res.redirect("/thanks");
-        return;
-    }
-    // //
-    // console.log(req.body.first, req.body.last, req.body.sig);
+app.post("/petition", requireNoSignature, (req, res) => {
     db
-        .signPetition(req.body.first, req.body.last, req.body.sig)
+        .signPetition(
+            req.session.userId,
+            req.body.first,
+            req.body.last,
+            req.body.sig
+        )
         .then(function(result) {
-            const sigId = result.rows[0].id;
+            console.log(result);
+            let sigId = result.rows[0].id;
             req.session.sigId = sigId;
             // console.log(req.session);
             res.redirect("/thanks");
@@ -85,14 +117,9 @@ app.post("/petition", (req, res) => {
             console.log(e);
         });
 });
-// thanks route
-app.get("/thanks", (req, res) => {
-    if (!req.session.sigId) {
-        res.redirect("/petition");
-        return;
-    }
-    //
-    console.log("checking a ssesion", req.session);
+// thanks route ----------------------------------------
+app.get("/thanks", requireSignature, (req, res) => {
+    console.log("sigid", req.session.sigId);
     db
         .getSignatureById(req.session.sigId)
         .then(function(result) {
@@ -107,21 +134,20 @@ app.get("/thanks", (req, res) => {
             console.log("there is a error in get thanks", e);
         });
 });
-// signers route
-app.get("/signers", (req, res) => {
-    if (!req.session.sigId) {
-        res.redirect("/petition");
-        return;
-    }
-    //
+// signers route --------------------------------------------
+app.get("/signers", requireUserId, requireSignature, (req, res) => {});
+// logout raute
+app.get("/logout", function(req, res) {
+    req.session = null;
+    res.redirect("/");
 });
 // this rout adress all request and return 404 if file doesent exist
 app.get("*", (req, res) => {
-    // res.redirect("/");
-    res.render("404", {
-        layout: "main",
-        message: "File you are loocking for does not exist on this server"
-    });
+    res.redirect("/");
+    // res.render("404", {
+    //     layout: "main",
+    //     message: "File you are loocking for does not exist on this server"
+    // });
 });
 // =================================================
 // ===============  End of server ==================
@@ -129,79 +155,70 @@ app.listen(8080, () => console.log("Listening on port 8080"));
 // =================================================
 // =================================================
 
-// app.use((req, res, next) => {
-//     // console.log("inside middleware", req.cookies);
-//     if (req.url !== "/cookie") {
-//         if (req.cookies.isLogedIn !== "yes") {
-//             res.cookie("url", req.url);
-//             // console.log("inside middleware. isLogedin did not pass, redirecting");
-//             res.redirect("/cookie");
-//         } else {
-//             next();
-//         }
+// it check if user has sigh petition
+function requireNoSignature(req, res, next) {
+    if (req.session.sigId) {
+        res.redirect("/thanks");
+    } else {
+        next();
+    }
+}
+function requireSignature(req, res, next) {
+    if (!req.session.sigId) {
+        res.redirect("/thanks");
+    } else {
+        next();
+    }
+}
+// functions that checks if there is a cookie setHeader
+// it check if user is registerd
+function requireUserId(req, res, next) {
+    if (!req.session.userId) {
+        res.redirect("/register");
+    } else {
+        next();
+    }
+}
+function requireLoggedOut(req, res, next) {
+    if (!req.session.userId && req.url != "/register") {
+        console.log("requireLoggedOut");
+        res.redirect("/register");
+    } else {
+        next();
+    }
+}
+// function requireLoggedOut(req, res, next) {
+//     if (!req.session.userId && req.url != "/register") {
+//         console.log("requireLoggedOut");
+//         res.redirect("/register");
 //     } else {
 //         next();
 //     }
-// });
+// }
 
-// Projects page route -----------------------
-// app.get("/projects/:name/description/", (req, res) => {
-//     let requestUrl = req.params.name;
-//     let jsonDescriptions = fs.readFileSync(
-//         __dirname + "/public/projects/" + requestUrl + "/description.json"
-//     );
-//     let parsedObject = JSON.parse(jsonDescriptions);
-//     // let parsedObject = JSON.parse(jsonDescriptions);
-//     res.render("description", {
-//         layout: "main",
-//         message: "Project " + requestUrl + " description!",
-//         name: requestUrl,
-//         description: parsedObject["description:"],
-//         myArray: projects
-//     });
+// db
+// .getUserByEmail(req.body.email)
+// .then(function(emailExists) {
+// 	console.log(emailExists);
+// 	if (emailExists) {
+// 		res.redirect("/login");
+// 	} else {
+// 		db
+// 		.hashPassword(req.body.password)
+// 		.then(function(hashedPassword) {
+// 			//
+// 			db.registerUser(
+// 				req.body.first,
+// 				req.body.last,
+// 				req.body.email,
+// 				hashedPassword
+// 			);
+// 		})
+// 		.catch(function(e) {
+// 			console.log(e);
+// 		});
+// 	}
+// })
+// .catch(function(e) {
+// 	console.log(e);
 // });
-// About page route -----------------------
-// app.get("/about", (req, res) => {
-//     res.render("about", {
-//         layout: "main",
-//         message: "About me!"
-//     });
-// });
-// day one -------------------------------
-// Cookies route -------------------------------
-// app.get("/cookie", (req, res) => {
-//     // console.log("inside get /cookie", req.cookies);
-//     if (req.cookies.isLogedIn == "yes") {
-//         res.redirect("/");
-//     } else {
-//         res.send(`
-// 			<h1>You need to accept cookies</h1>
-// 			<form method = 'POST'>
-// 			<input name = "checkbox" type="checkbox">
-// 			<button>send</button>
-// 			</form>
-// 			`);
-//     }
-// });
-// app.post("/cookie", (req, res) => {
-//     // console.log("inside post /cookie");
-//     const box = req.body.checkbox;
-//     if (box) {
-//         // console.log("we are here", req.cookies.url);
-//         res.cookie("isLogedIn", "yes");
-//         // res.redirect("/");
-//         // console.log(req.cookie.url);
-//         res.redirect(req.cookies.url);
-//         // res.redirect("'" + req.cookies.url + "'");
-//     } else {
-//         // console.log("box not found redirecting");
-//         // res.send("you are not autorised");
-//         res.redirect("/cookie");
-//     }
-// });
-// In case of un existing route it rerender 404 page  -------------------------------
-// In case of un existing route -------------------------------
-
-// =========================
-// Autorisation package
-// =========================

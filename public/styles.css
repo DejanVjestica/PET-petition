@@ -5,12 +5,12 @@ a ul link {
     text-decoration: none;
     cursor: pointer;
 }
-.canv {
-    border: 1px solid;
-}
-.petition-form label,
-.petition-form canvas {
+label,
+canvas {
     display: block;
     margin-bottom: 1em;
     margin-left: 1em;
+}
+.canv {
+    border: 1px solid;
 }
