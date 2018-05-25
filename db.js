@@ -54,7 +54,7 @@ exports.checkPassword = function(
 exports.getUserByEmail = function(email) {
     return db.query(
         `
-		SELECT *
+		SELECT first, last, hash_password, users.id as user_id, signatures.id as sig_id
 		FROM users
 		LEFT JOIN signatures
 		ON signatures.user_id = users.id
@@ -85,11 +85,11 @@ exports.login = function(email, password) {
 // ========================================================
 // ================ Petition ==============================
 // ========================================================
-exports.signPetition = function(id, first, last, sig) {
+exports.signPetition = function(user_id, sig) {
     return db.query(
-        `INSERT INTO signatures (user_id, first, last, signature)
-		VALUES ($1, $2, $3, $4) RETURNING id`,
-        [id, first, last, sig]
+        `INSERT INTO signatures (user_id, signature)
+		VALUES ($1, $2) RETURNING id`,
+        [user_id, sig]
     );
 };
 

@@ -20,7 +20,7 @@ app.use(
         extended: false
     })
 );
-// cookie parser ---------------------------------------
+// // cookie parser ---------------------------------------
 app.use(require("cookie-parser")());
 // public files ----------------------------------------
 app.use(express.static(urlPublic));
@@ -31,22 +31,22 @@ app.use(
         maxAge: 1000 * 60 * 60 * 24 * 14
     })
 );
-// csurf creates a session ----------------------------
+// // csurf creates a session ----------------------------
 app.use(csurf());
 app.use(function(req, res, next) {
     res.locals.csrfToken = req.csrfToken();
     res.setHeader("X-Frame", "DENY");
     next();
 });
-// =====================================================
-// ==================== Routes  ========================
-// =====================================================
-// Home page route, ------------------------------------
+// // =====================================================
+// // ==================== Routes  ========================
+// // =====================================================
+// // Home page route, ------------------------------------
 app.get("/", (req, res) => {
     res.redirect("/register");
 });
-// register route ---------------------------------------
-app.get("/register", requireLoggedOut, (req, res) => {
+// // register route ---------------------------------------
+app.get("/register", (req, res) => {
     // console.log("get register in");
     res.render("register", {
         layout: "main",
@@ -69,23 +69,15 @@ app.post("/register", (req, res) => {
                 .then(function(body) {
                     // console.log(body);
                     let userId = body.rows[0].id;
-                    let first = req.body.first;
-                    let last = req.body.last;
-                    let email = req.body.email;
-                    console.log(
-                        "route /register afer register user: ",
-                        userId,
-                        first,
-                        last
-                    );
+                    let first = body.rows[0].first;
+                    let last = body.rows[0].last;
                     req.session.userId = userId;
                     req.session.last = last;
                     req.session.first = first;
-                    req.session.email = email;
                     res.redirect("/petition");
                 })
-                .catch(function(e) {
-                    console.log("register user: ", e);
+                .catch(function() {
+                    // console.log("register user: ", e);
                     res.render("register", {
                         layout: "main",
                         message: "Please register new acount",
@@ -99,26 +91,20 @@ app.post("/register", (req, res) => {
 
     // ------------------------
 });
-// login route ---------------------------------------
-app.get("/login", requireLoggedOut, (req, res) => {
+// // login route ---------------------------------------
+app.get("/login", (req, res) => {
     //
     res.render("login", {
         layout: "main",
         message: "Login to your account"
     });
 });
-app.post("/login", requireLoggedOut, (req, res) => {
+app.post("/login", (req, res) => {
     //
-    let first, last, userId, sigId;
+    // let first, last, id, signature;
     db
         .getUserByEmail(req.body.email)
         .then(function(result) {
-            console.log("result rows 0 ", result.rows[0]);
-            first = result.rows[0].first;
-            last = result.rows[0].last;
-            sigId = result.rows[0].sig_id;
-            userId = result.rows[0].user_id;
-
             return db
                 .checkPassword(req.body.password, result.rows[0].hash_password)
                 .then(function(doesMatch) {
@@ -127,18 +113,15 @@ app.post("/login", requireLoggedOut, (req, res) => {
                             console.log("login route after check password")
                         );
                     } else {
-                        // console.log("correct");
-                        req.session.first = first;
-                        req.session.last = last;
-                        req.session.userId = userId;
-                        req.session.sigId = sigId;
-
+                        req.session.first = result.rows[0].first;
+                        req.session.last = result.rows[0].last;
+                        req.session.userId = result.rows[0].id;
                         return res.redirect("/petition");
                     }
                 });
         })
-        .catch(function(e) {
-            console.log("login route get hashPassword", e);
+        .catch(function() {
+            // console.log("login route get hashPassword", e);
             res.render("login", {
                 layout: "main",
                 message: "Login to your account",
@@ -146,31 +129,35 @@ app.post("/login", requireLoggedOut, (req, res) => {
             });
         });
 });
-// Petition route ------------------------------------
-app.get("/petition", requireNoSignature, (req, res) => {
+// // Petition route ------------------------------------
+app.get("/petition", (req, res) => {
     res.render("petition", {
         layout: "main",
         message: "Sign our petition to help us give animals human"
     });
 });
-app.post("/petition", requireNoSignature, (req, res) => {
-    console.log("user ID    ");
+app.post("/petition", (req, res) => {
     db
-        .signPetition(req.session.userId, req.body.sig)
+        .signPetition(
+            req.session.userId,
+            req.body.first,
+            req.body.last,
+            req.body.sig
+        )
         .then(function(result) {
-            console.log("result: ", result);
+            // console.log("result: ", result);
             let sigId = result.rows[0].id;
-            console.log("sig: ", sigId);
+            // console.log("sig: ", sigId);
             req.session.sigId = sigId;
-            console.log("session: ", req.session);
+            // console.log("session: ", req.session);
             res.redirect("/thanks");
         })
         .catch(function(e) {
             console.log("/petition: ", e);
         });
 });
-// thanks route ----------------------------------------
-app.get("/thanks", requireSignature, (req, res) => {
+// // thanks route ----------------------------------------
+app.get("/thanks", (req, res) => {
     // console.log("sigid", req.session.sigId);
     db
         .getSignatureById(req.session.sigId)
@@ -192,7 +179,7 @@ app.get("/thanks", requireSignature, (req, res) => {
         });
 });
 // signers route --------------------------------------------
-app.get("/signers", requireUserId, requireSignature, (req, res) => {});
+app.get("/signers", (req, res) => {});
 // logout raute
 app.get("/logout", function(req, res) {
     req.session = null;
@@ -211,37 +198,37 @@ app.get("*", (req, res) => {
 app.listen(8080, () => console.log("Listening on port 8080"));
 // =================================================
 // =================================================
-
-// it check if user has sigh petition
-function requireNoSignature(req, res, next) {
-    console.log("reqNoSig: ", req.session);
-    if (req.session.sigId) {
-        res.redirect("/thanks");
-    } else {
-        next();
-    }
-}
-function requireSignature(req, res, next) {
-    if (!req.session.sigId) {
-        res.redirect("/thanks");
-    } else {
-        next();
-    }
-}
-// functions that checks if there is a cookie setHeader
-// it check if user is registerd
-function requireUserId(req, res, next) {
-    if (!req.session.userId) {
-        res.redirect("/register");
-    } else {
-        next();
-    }
-}
-function requireLoggedOut(req, res, next) {
-    if (req.session.userId) {
-        // console.log("requireLoggedOut");
-        res.redirect("/petition");
-    } else {
-        next();
-    }
-}
+//
+// // it check if user has sigh petition
+// function requireNoSignature(req, res, next) {
+//     console.log("reqNoSig: ", req.session);
+//     if (req.session.sigId) {
+//         res.redirect("/thanks");
+//     } else {
+//         next();
+//     }
+// }
+// function requireSignature(req, res, next) {
+//     if (!req.session.sigId) {
+//         res.redirect("/thanks");
+//     } else {
+//         next();
+//     }
+// }
+// // functions that checks if there is a cookie setHeader
+// // it check if user is registerd
+// function requireUserId(req, res, next) {
+//     if (!req.session.userId) {
+//         res.redirect("/register");
+//     } else {
+//         next();
+//     }
+// }
+// function requireLoggedOut(req, res, next) {
+//     if (req.session.userId) {
+//         // console.log("requireLoggedOut");
+//         res.redirect("/petition");
+//     } else {
+//         next();
+//     }
+// }
