@@ -3,7 +3,7 @@ const db = spicedPg("postgres:dvjes:postgres@localhost:5432/petition");
 const bcrypt = require("bcryptjs");
 
 // ========================================================
-// ================ Login and Registration ================
+// ================ Hashing a password ====================
 // ========================================================
 exports.hashPassword = function(plainTextPassword) {
     return new Promise(function(resolve, reject) {
@@ -38,9 +38,30 @@ exports.checkPassword = function(
         );
     });
 };
-// --------------------------------------------------------
+// ========================================================
+// ================ Login and Registration ================
+// ========================================================
+// exports.getUserByEmail = function(email) {
+//     return db.query(`SELECT * FROM users WHERE email = $1`, [email]);
+// `
+// SELECT first, last, hash_password, users.id as user_id, signatures.id as sig_id
+// FROM users
+// LEFT JOIN signatures
+// ON signatures.user_id = users.id
+// WHERE email = $1
+// `
+// };
 exports.getUserByEmail = function(email) {
-    return db.query(`SELECT * FROM users WHERE email = $1`, [email]);
+    return db.query(
+        `
+		SELECT *
+		FROM users
+		LEFT JOIN signatures
+		ON signatures.user_id = users.id
+		WHERE email = $1
+		`,
+        [email]
+    );
 };
 exports.getSigIdByUserId = function(id) {
     return db.query(`SELECT * FROM signatures WHERE user_id = $1`, [id]);
@@ -51,6 +72,13 @@ exports.registerUser = function(first, last, email, password) {
         `INSERT INTO users (first, last, email, hash_password)
 		VALUES ($1, $2, $3, $4) RETURNING id`,
         [first, last, email, password]
+    );
+};
+exports.login = function(email, password) {
+    return db.query(
+        `INSERT INTO users (email, hash_password)
+		VALUES ($1, $2) RETURNING id`,
+        [email, password]
     );
 };
 
@@ -69,7 +97,7 @@ exports.getSignatureById = function(sigId) {
     return db
         .query("SELECT signature FROM signatures WHERE id=$1", [sigId])
         .then(function(results) {
-            console.log(results);
+            // console.log(results);
             return results.rows[0].signature;
         });
 };
@@ -81,3 +109,6 @@ exports.signers = function() {
             return results.rows;
         });
 };
+// ========================================================
+// ================ Profile ===============================
+// ========================================================

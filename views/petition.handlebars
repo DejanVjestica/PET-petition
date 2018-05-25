@@ -1,10 +1,9 @@
 <section class="petition">
-	{{> img}}
 	<h1>{{message}}</h1>
 
 	<form class="petition-form" method="post">
-		<label><input type="text" name="first" />First name</label>
-		<label><input type="text" name="last" />Last name</label>
+		<!-- <label><input type="text" name="first" />First name</label>
+		<label><input type="text" name="last" />Last name</label> -->
 		<input id="sig" type="hidden" name="sig">
 		<input type="hidden" name="_csrf" value="{{csrfToken}}">
 		<p>Sign Here</p>

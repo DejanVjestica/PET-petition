@@ -1,0 +1,11 @@
+<h1>{{message}}</h1>
+<form class="login" method="post">
+	<label><input type="email" name="email" />Email</label>
+	<label><input type="password" name="password" />Password</label>
+	<input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+	<input class="submit" type="submit" value="Submit">
+</form>
+{{#if error}}
+{{error}}
+{{/if}}

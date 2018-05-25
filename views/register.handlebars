@@ -1,5 +1,4 @@
 <section class="register">
-	{{> img}}
 	<h1>{{message}}</h1>
 
 	<form class="registration-form" method="post">
@@ -11,6 +10,7 @@
 
 		<input class="submit" type="submit" value="Submit">
 	</form>
-	<a href="/login">login</a>
-
+	{{#if error}}
+	{{error}}
+	{{/if}}
 </section>

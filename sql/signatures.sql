@@ -7,3 +7,8 @@ CREATE TABLE signatures(
    last VARCHAR(200) NOT NULL,
    signature TEXT NOT NULL
 );
+-- CREATE TABLE signatures(
+--    id SERIAL PRIMARY KEY,
+--    user_id INTEGER NOT NULL,
+--    signature TEXT NOT NULL
+-- );
