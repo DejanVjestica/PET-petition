@@ -82,7 +82,7 @@ app.post("/register", (req, res) => {
                     req.session.last = last;
                     req.session.first = first;
                     req.session.email = email;
-                    res.redirect("/petition");
+                    res.redirect("/profile");
                 })
                 .catch(function(e) {
                     console.log("register user: ", e);
@@ -99,6 +99,55 @@ app.post("/register", (req, res) => {
 
     // ------------------------
 });
+// profile route ---------------------------------------
+app.get("/profile", (req, res) => {
+    res.render("profile", {
+        layout: "main",
+        message: "Now please tell us more about you self"
+        // error: "email already exist, please use diferent one"
+    });
+    // res.redirect("/register");
+});
+app.post("/profile", requireNoUserId, (req, res) => {
+    // res.redirect("/register");
+    let age, city, homepage;
+    db
+        .profile(
+            req.body.age,
+            req.body.city,
+            req.body.homepage,
+            req.session.userId
+        )
+        .then(function() {
+            age = req.body.age;
+            city = req.body.city;
+            homepage = req.body.homepage;
+            req.session.age = age;
+            req.session.city = city;
+            req.session.homepage = homepage;
+            // console.log(age, city, homepage);
+            res.redirect("/petition");
+        })
+        .catch(function(e) {
+            console.log("route /profile: ", e);
+        });
+});
+app.get("/profile/edit", function(req, res) {
+    // req.session = null;
+    // res.redirect("/");
+    db
+        .updateUser(req.session.userId)
+        .then(function(userProfile) {
+            res.render("profile_edit", {
+                layout: "main",
+                message: "Edit your Profile page"
+            });
+        })
+        .catch(function(e) {
+            console.log("route / profile edit: ", e);
+        });
+});
+// ====================================================
 // login route ---------------------------------------
 app.get("/login", requireLoggedOut, (req, res) => {
     //
@@ -113,7 +162,7 @@ app.post("/login", requireLoggedOut, (req, res) => {
     db
         .getUserByEmail(req.body.email)
         .then(function(result) {
-            console.log("result rows 0 ", result.rows[0]);
+            // console.log("result rows 0 ", result.rows[0]);
             first = result.rows[0].first;
             last = result.rows[0].last;
             sigId = result.rows[0].sig_id;
@@ -154,16 +203,16 @@ app.get("/petition", requireNoSignature, (req, res) => {
     });
 });
 app.post("/petition", requireNoSignature, (req, res) => {
-    console.log("user ID    ");
     db
         .signPetition(req.session.userId, req.body.sig)
         .then(function(result) {
-            console.log("result: ", result);
             let sigId = result.rows[0].id;
-            console.log("sig: ", sigId);
             req.session.sigId = sigId;
-            console.log("session: ", req.session);
             res.redirect("/thanks");
+            // console.log("user ID    ");
+            // console.log("sig: ", sigId);
+            // console.log("session: ", req.session);
+            // console.log("result: ", result);
         })
         .catch(function(e) {
             console.log("/petition: ", e);
@@ -178,11 +227,11 @@ app.get("/thanks", requireSignature, (req, res) => {
             res.render("thanks", {
                 layout: "main",
                 message:
-                    "xDear " +
+                    "Dear " +
                     req.session.first +
                     " " +
                     req.session.last +
-                    " Thank you for signing our petition",
+                    " thank you for signing our petition",
 
                 signature: result
             });
@@ -192,7 +241,31 @@ app.get("/thanks", requireSignature, (req, res) => {
         });
 });
 // signers route --------------------------------------------
-app.get("/signers", requireUserId, requireSignature, (req, res) => {});
+// app.get("/signers", requireUserId, requireSignature, (req, res) => {});
+app.get("/signers", requireUserId, requireSignature, (req, res) => {
+    db
+        .getSigners()
+        .then(function(result) {
+            res.render("signers", {
+                layout: "main",
+                signers: result.rows
+            });
+        })
+        .catch(function(err) {
+            console.log(err);
+        });
+});
+app.get("/signers/:city", (req, res) => {
+    console.log("city");
+    db.getSignersByCity(req.params.city).then(function(result) {
+        console.log(result);
+        res.render("signers", {
+            layout: "main",
+            signers: result.rows
+        });
+    });
+});
+
 // logout raute
 app.get("/logout", function(req, res) {
     req.session = null;
@@ -206,6 +279,7 @@ app.get("*", (req, res) => {
     //     message: "File you are loocking for does not exist on this server"
     // });
 });
+
 // =================================================
 // ===============  End of server ==================
 app.listen(8080, () => console.log("Listening on port 8080"));
@@ -240,6 +314,13 @@ function requireUserId(req, res, next) {
 function requireLoggedOut(req, res, next) {
     if (req.session.userId) {
         // console.log("requireLoggedOut");
+        res.redirect("/petition");
+    } else {
+        next();
+    }
+}
+function requireNoUserId(req, res, next) {
+    if (!req.session.userId) {
         res.redirect("/petition");
     } else {
         next();

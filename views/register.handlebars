@@ -2,10 +2,10 @@
 	<h1>{{message}}</h1>
 
 	<form class="registration-form" method="post">
-		<label><input type="text" name="first" />First name</label>
-		<label><input type="text" name="last" />Last name</label>
-		<label><input type="email" name="email" />Email</label>
-		<label><input type="password" name="password" />Password</label>
+		<label><input type="text" name="first" placeholder="First name"/></label>
+		<label><input type="text" name="last" placeholder="Last name"/></label>
+		<label><input type="email" name="email" placeholder="Email"/></label>
+		<label><input type="password" name="password" placeholder="Password"/></label>
 		<input type="hidden" name="_csrf" value="{{csrfToken}}">
 
 		<input class="submit" type="submit" value="Submit">

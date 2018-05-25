@@ -1,0 +1,14 @@
+<section class="profile">
+	<h1>{{message}}</h1>
+
+	<form class="profile-form" method="post">
+		<label><input type="text" name="age" placeholder="your age"/></label>
+		<label><input type="text" name="city" placeholder="your city"/></label>
+		<label><input type="text" name="homepage" placeholder="do you have a homepage"/></label>
+
+		<input class="submit" type="submit" value="Continue">
+
+		<input type="hidden" name="_csrf" value="{{csrfToken}}">
+	</form>
+
+</section>

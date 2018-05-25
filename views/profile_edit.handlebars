@@ -1,0 +1,22 @@
+<br>
+{{message}}
+<br>
+<form class="edit" method="post">
+	<!-- registration form -->
+	<label><input type="text" name="first" placeholder="First name"/></label>
+	<label><input type="text" name="last" placeholder="Last name"/></label>
+	<label><input type="email" name="email" placeholder="Email"/></label>
+	<label><input type="password" name="password" placeholder="Password"/></label>
+	<!-- profile form -->
+	<label><input type="text" name="age" placeholder="your age"/></label>
+	<label><input type="text" name="city" placeholder="your city"/></label>
+	<label><input type="text" name="homepage" placeholder="do you have a homepage"/></label>
+
+	<input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>
+
+{{first}}
+{{last}}
+{{city}}
+{{age}}
+{{email}}

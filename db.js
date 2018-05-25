@@ -74,14 +74,20 @@ exports.registerUser = function(first, last, email, password) {
         [first, last, email, password]
     );
 };
-exports.login = function(email, password) {
+// exports.login = function(email, password) {
+//     return db.query(
+//         `INSERT INTO users (email, hash_password)
+// 		VALUES ($1, $2) RETURNING id`,
+//         [email, password]
+//     );
+// };
+exports.profile = function(age, city, homepage, userId) {
     return db.query(
-        `INSERT INTO users (email, hash_password)
-		VALUES ($1, $2) RETURNING id`,
-        [email, password]
+        `INSERT INTO user_profiles (age, city, homepage, user_id)
+		VALUES ($1, $2, $3, $4) RETURNING age, city, homepage, user_id`,
+        [age, city, homepage, userId]
     );
 };
-
 // ========================================================
 // ================ Petition ==============================
 // ========================================================
@@ -102,13 +108,37 @@ exports.getSignatureById = function(sigId) {
         });
 };
 
-exports.signers = function() {
-    return db
-        .query("SELECT firstName, lastName FROM signatures")
-        .then(function(results) {
-            return results.rows;
-        });
+exports.getSigners = function() {
+    return db.query(`
+	   SELECT *
+	   FROM users
+	   LEFT JOIN user_profiles
+	   ON users.id = user_profiles.user_id;
+	   `);
+};
+module.exports.getSignersByCity = function getSignersByCity(city) {
+    return db.query(
+        `
+        SELECT first, last
+        FROM users
+        LEFT JOIN user_profiles
+        ON users.id = user_profiles.user_id
+        WHERE LOWER(city) = LOWER($1)
+        `,
+        [city]
+    );
 };
 // ========================================================
 // ================ Profile ===============================
 // ========================================================
+
+module.exports.updateUser = function updateUser(first, last, email, user_id) {
+    return db.query(
+        `
+       UPDATE users
+       SET first = $1, last = $2, email = $3
+       WHERE id = $4
+       `,
+        [first, last, email, user_id]
+    );
+};
