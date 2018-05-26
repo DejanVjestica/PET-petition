@@ -134,7 +134,7 @@ app.get("/profile/edit", (req, res) => {
     db
         .getProfile(req.session.userId)
         .then(function(result) {
-            res.render("edit", {
+            res.render("profile_edit", {
                 layout: "main",
                 signer: result.rows[0]
             });
@@ -302,7 +302,8 @@ app.get("/signers", requireUserId, requireSignature, (req, res) => {
         .then(function(result) {
             res.render("signers", {
                 layout: "main",
-                signers: result.rows
+                signers: result.rows,
+                message: "List of all partisipants."
             });
         })
         .catch(function(err) {

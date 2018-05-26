@@ -52,13 +52,17 @@ nav a:hover {
     color: white;
     padding: 1em;
 }
+.main a {
+    color: white;
+}
 .canvas {
     background-color: white;
     object-fit: contain;
 }
-.thanks {
-    align-content: space-between;
-    height: 100%;
+.thanks a {
+    /* align-content: space-between;
+    height: 100%; */
+    margin-top: 1em;
 }
 
 .link {

@@ -4,29 +4,32 @@
 	<!-- {{> registration}}
 	{{> profile}} -->
 	<label for="first"><b>First name</b></label>
-	<input type="text" name="first" placeholder="First name"/>
+	<input type="text" name="first" placeholder="First name" value="{{signer.first}}"/>
 
 	<label for="last"><b>Last name</b></label>
-	<input type="text" name="last" placeholder="Last name"/>
+	<input type="text" name="last" placeholder="Last name" value="{{signer.last}}"/>
 
 	<label for="email"><b>Email</b></label>
-	<input type="email" name="email" placeholder="Email"/>
+	<input type="email" name="email" placeholder="Email" value="{{signer.email}}"/>
 
 	<label for="password"><b>Password</b></label>
 	<input type="password" name="password" placeholder="Password"/>
 
 	<!-- profile form -->
 	<label for="age"><b>Your age</b></label>
-	<input type="text" name="age" placeholder="your age"/>
+	<input type="text" name="age" placeholder="your age" value="{{signer.age}}"/>
 
 	<label for="city"><b>City</b></label>
-	<input type="text" name="city" placeholder="your city"/>
+	<input type="text" name="city" placeholder="your city" value="{{signer.age}}"/>
 
 	<label for="homepage"><b>Homepage</b></label>
-	<input type="text" name="homepage" placeholder="Homepage"/>
+	<input type="text" name="homepage" placeholder="Homepage" value="{{signer.homepage}}"/>
+	{{#error}}
+    <p>Uh oh, something went wrong. Please try again</p>
+    {{/error}}
 
 	<input type="hidden" name="_csrf" value="{{csrfToken}}">
-	<input class="submit" type="submit" value="Submit">
+	<input class="submit" type="submit" value="Update">
 </form>
 
 {{first}}
