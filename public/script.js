@@ -1,5 +1,8 @@
 (function() {
     const canvas = document.querySelector(".canv");
+    if (!canvas) {
+        return;
+    }
     const ctx = canvas.getContext("2d");
     const submit = document.querySelector(".submit");
     let offsetX, offsetY;
@@ -41,31 +44,14 @@
     });
 })(); // End of IFFIES
 
-// const ctx = document.getElementById("canv").getContext("2d");
-// const ctx = canvas.getContext("2d");
+function myFunction(x) {
+    x.classList.toggle("change");
+}
+$(document).ready(function() {
+    // jquery
 
-// Canvas handeling
-
-// canvasField.addEventListener("mousemove", mouseMove);
-
-// canvasField.addEventListener("mousemove", function(e) {
-//     console.log(e.clientX);
-//     // canvasField.addEventListener("mousemove", mouseMove);
-//     // console.log(e.clientX);
-// });
-// canvasField.addEventListener("mouseup", function(e) {
-//     e.target.removeEventListener("mousemove", canvas);
-//     e.target.removeEventListener("mousedown", canvas);
-//     console.log("removesd");
-// });
-// //
-// // canvasField.addEventListener("mousedown", canvas);
-// //
-// // canvasField.addEventListener("mouseup", canvas);
-// // canvasField.removeEvenListener("mousedown", canvas);
-// canvasField.addEventListener("mousedown", canvas);
-
-// canvasField.removeEventListener("mousedown", canvas);
-// canvasField.addEventListener("mouseup", function() {
-// });
-// canvasField.removeEventListener("mousemove", mouseMove);
+    $(".nav").hide();
+    $(".hamburger").click(function() {
+        $(".nav").slideToggle();
+    });
+});

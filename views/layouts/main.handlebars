@@ -3,17 +3,32 @@
 <link rel="stylesheet" href="/styles.css">
 	<head>
 		<meta charset="utf-8">
-		<title></title>
+		<title>Petition</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="/stylesheet.css">
 	</head>
-	<body>
-		<header>
-			{{> nav}}
-		</header>
-		{{> img}}
-		<section class="main">
+	<body class="flexContainer">
+
+		<!-- navigation -->
+		{{> nav}}
+		<!-- image -->
+		<section class="hero flex1">
+			{{> img}}
+		</section>
+		<!-- info section -->
+		<!-- <section class="info flex60">
+		</section> -->
+		<!-- main content -->
+		<section class="main flex2">
+			{{> info}}
+			<br>
 			{{{ body }}}
 		</section>
+		<!-- footer -->
+		<footer class="footer"></footer>
+
+		<!-- JavaScript -->
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="/script.js">
 
 		</script>

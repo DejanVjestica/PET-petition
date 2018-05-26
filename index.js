@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
 // =====================================================
 // Home page route, ------------------------------------
 app.get("/", (req, res) => {
-    console.log("route /: ", req.session);
+    // console.log("route /: ", req.session);
     res.redirect("/register");
 });
 // register route ---------------------------------------
@@ -128,21 +128,67 @@ app.post("/profile", requireNoUserId, (req, res) => {
             console.log("route /profile: ", e);
         });
 });
-app.get("/profile/edit", function(req, res) {
-    // req.session = null;
-    // res.redirect("/");
+// editing profile
+app.get("/profile/edit", (req, res) => {
+    console.log("EDIT ROUTE");
     db
-        .updateUser(req.session.userId)
-        .then(function(userProfile) {
-            res.render("profile_edit", {
+        .getProfile(req.session.userId)
+        .then(function(result) {
+            res.render("edit", {
                 layout: "main",
-                message: "Edit your Profile page"
+                signer: result.rows[0]
             });
         })
-        .catch(function(e) {
-            console.log("route / profile edit: ", e);
+        .catch(function(err) {
+            console.log("profile edit error  ", err);
         });
 });
+app.post("/profile/edit", (req, res) => {
+    const { first, last, email, age, city, homepage, password } = req.body;
+    const { userId } = req.session;
+    if (password) {
+        db
+            .hashPassword(password)
+            .then(function(hashedPassword) {
+                Promise.all([
+                    db.updateUser(first, last, email, hashedPassword, userId),
+                    db.updateUserProfile(age, city, homepage, userId)
+                ]);
+            })
+            .then(function() {
+                return res.redirect("/thanks");
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
+    } else {
+        Promise.all([
+            db.updateUserOutPassword(first, last, email, userId),
+            db.updateUserProfile(age, city, homepage, userId)
+        ])
+            .then(function() {
+                return res.redirect("/thanks");
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
+    }
+});
+// app.get("/profile/edit", function(req, res) {
+//     // req.session = null;
+//     // res.redirect("/");
+//     db
+//         .updateUser(req.session.userId)
+//         .then(function(userProfile) {
+//             res.render("profile_edit", {
+//                 layout: "main",
+//                 message: "Edit your Profile page"
+//             });
+//         })
+//         .catch(function(e) {
+//             console.log("route / profile edit: ", e);
+//         });
+// });
 // ====================================================
 // login route ---------------------------------------
 app.get("/login", requireLoggedOut, (req, res) => {

@@ -136,13 +136,71 @@ exports.profile = function(age, city, homepage, userId) {
         [age, city, homepage, userId]
     );
 };
-module.exports.updateUser = function updateUser(first, last, email, user_id) {
+// module.exports.updateUser = function updateUser(first, last, email, user_id) {
+//     return db.query(
+//         `
+//        UPDATE users
+//        SET first = $1, last = $2, email = $3
+//        WHERE id = $4
+//        `,
+//         [first, last, email, user_id]
+//     );
+// };
+module.exports.updateUser = function updateUser(
+    first,
+    last,
+    email,
+    password,
+    user_id
+) {
     return db.query(
         `
-       UPDATE users
-       SET first = $1, last = $2, email = $3
-       WHERE id = $4
-       `,
+        UPDATE users
+        SET first = $1, last = $2, email = $3, password = $4
+        WHERE id = $5
+        `,
+        [first, last, email, password, user_id]
+    );
+};
+module.exports.updateUserProfile = function updateUserProfile(
+    age,
+    city,
+    homepage,
+    user_id
+) {
+    return db.query(
+        `
+            UPDATE user_profiles
+            SET age = $1, city = $2, homepage = $3
+            WHERE id = $4
+            `,
+        [age, city, homepage, user_id]
+    );
+};
+module.exports.updateUserOutPassword = function updateUser(
+    first,
+    last,
+    email,
+    user_id
+) {
+    return db.query(
+        `
+        UPDATE users
+        SET first = $1, last = $2, email = $3
+        WHERE id = $4
+        `,
         [first, last, email, user_id]
+    );
+};
+module.exports.getProfile = function getProfile(id) {
+    return db.query(
+        `
+        SELECT *
+        FROM users
+        LEFT JOIN user_profiles
+        ON users.id = user_profiles.user_id
+        WHERE user_id = $1
+        `,
+        [id]
     );
 };

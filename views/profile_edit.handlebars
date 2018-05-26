@@ -1,18 +1,32 @@
-<br>
-{{message}}
-<br>
+<h1>{{message}}</h1>
 <form class="edit" method="post">
 	<!-- registration form -->
-	<label><input type="text" name="first" placeholder="First name"/></label>
-	<label><input type="text" name="last" placeholder="Last name"/></label>
-	<label><input type="email" name="email" placeholder="Email"/></label>
-	<label><input type="password" name="password" placeholder="Password"/></label>
+	<!-- {{> registration}}
+	{{> profile}} -->
+	<label for="first"><b>First name</b></label>
+	<input type="text" name="first" placeholder="First name"/>
+
+	<label for="last"><b>Last name</b></label>
+	<input type="text" name="last" placeholder="Last name"/>
+
+	<label for="email"><b>Email</b></label>
+	<input type="email" name="email" placeholder="Email"/>
+
+	<label for="password"><b>Password</b></label>
+	<input type="password" name="password" placeholder="Password"/>
+
 	<!-- profile form -->
-	<label><input type="text" name="age" placeholder="your age"/></label>
-	<label><input type="text" name="city" placeholder="your city"/></label>
-	<label><input type="text" name="homepage" placeholder="do you have a homepage"/></label>
+	<label for="age"><b>Your age</b></label>
+	<input type="text" name="age" placeholder="your age"/>
+
+	<label for="city"><b>City</b></label>
+	<input type="text" name="city" placeholder="your city"/>
+
+	<label for="homepage"><b>Homepage</b></label>
+	<input type="text" name="homepage" placeholder="Homepage"/>
 
 	<input type="hidden" name="_csrf" value="{{csrfToken}}">
+	<input class="submit" type="submit" value="Submit">
 </form>
 
 {{first}}

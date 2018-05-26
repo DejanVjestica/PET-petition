@@ -1,15 +1,6 @@
-<section class="petition">
-	<h1>{{message}}</h1>
 
-	<form class="petition-form" method="post" action="/petition">
-		<!-- <label><input type="text" name="first" />First name</label>
-		<label><input type="text" name="last" />Last name</label> -->
-		<input id="sig" type="hidden" name="sig">
-		<input type="hidden" name="_csrf" value="{{csrfToken}}">
-		<p>Sign Here</p>
-		<canvas id="canv" class="canv" width="300" height="200"></canvas>
-		<input class="submit" type="submit" value="Submit">
-		<!-- <button>submit</button> -->
-	</form>
+<h1>{{message}}</h1>
 
-</section>
+<form class="petition-form" method="post" action="/petition">
+	{{> petition}}
+</form>
