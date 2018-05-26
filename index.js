@@ -43,6 +43,7 @@ app.use(function(req, res, next) {
 // =====================================================
 // Home page route, ------------------------------------
 app.get("/", (req, res) => {
+    console.log("route /: ", req.session);
     res.redirect("/register");
 });
 // register route ---------------------------------------
@@ -72,12 +73,7 @@ app.post("/register", (req, res) => {
                     let first = req.body.first;
                     let last = req.body.last;
                     let email = req.body.email;
-                    console.log(
-                        "route /register afer register user: ",
-                        userId,
-                        first,
-                        last
-                    );
+                    // setting cookie session
                     req.session.userId = userId;
                     req.session.last = last;
                     req.session.first = first;
@@ -103,7 +99,7 @@ app.post("/register", (req, res) => {
 app.get("/profile", (req, res) => {
     res.render("profile", {
         layout: "main",
-        message: "Now please tell us more about you self"
+        message: req.session.first + " please tell us more about you self"
         // error: "email already exist, please use diferent one"
     });
     // res.redirect("/register");
@@ -156,9 +152,12 @@ app.get("/login", requireLoggedOut, (req, res) => {
         message: "Login to your account"
     });
 });
+
 app.post("/login", requireLoggedOut, (req, res) => {
     //
-    let first, last, userId, sigId;
+    // console.log(req.session);
+
+    let first, last, userId, sigId, email;
     db
         .getUserByEmail(req.body.email)
         .then(function(result) {
@@ -167,6 +166,7 @@ app.post("/login", requireLoggedOut, (req, res) => {
             last = result.rows[0].last;
             sigId = result.rows[0].sig_id;
             userId = result.rows[0].user_id;
+            email = req.body.email;
 
             return db
                 .checkPassword(req.body.password, result.rows[0].hash_password)
@@ -181,7 +181,9 @@ app.post("/login", requireLoggedOut, (req, res) => {
                         req.session.last = last;
                         req.session.userId = userId;
                         req.session.sigId = sigId;
+                        req.session.email = email;
 
+                        console.log("route /login: ", req.session);
                         return res.redirect("/petition");
                     }
                 });
@@ -194,6 +196,12 @@ app.post("/login", requireLoggedOut, (req, res) => {
                 error: " error"
             });
         });
+});
+// logout raute -------------------------
+app.get("/logout", function(req, res) {
+    req.session = null;
+    console.log("route /logout: ", req.session);
+    res.redirect("/");
 });
 // Petition route ------------------------------------
 app.get("/petition", requireNoSignature, (req, res) => {
@@ -256,9 +264,9 @@ app.get("/signers", requireUserId, requireSignature, (req, res) => {
         });
 });
 app.get("/signers/:city", (req, res) => {
-    console.log("city");
+    // console.log("city");
     db.getSignersByCity(req.params.city).then(function(result) {
-        console.log(result);
+        // console.log(result);
         res.render("signers", {
             layout: "main",
             signers: result.rows
@@ -266,11 +274,6 @@ app.get("/signers/:city", (req, res) => {
     });
 });
 
-// logout raute
-app.get("/logout", function(req, res) {
-    req.session = null;
-    res.redirect("/");
-});
 // this rout adress all request and return 404 if file doesent exist
 app.get("*", (req, res) => {
     res.redirect("/");
@@ -288,7 +291,7 @@ app.listen(8080, () => console.log("Listening on port 8080"));
 
 // it check if user has sigh petition
 function requireNoSignature(req, res, next) {
-    console.log("reqNoSig: ", req.session);
+    // console.log("reqNoSig: ", req.session);
     if (req.session.sigId) {
         res.redirect("/thanks");
     } else {

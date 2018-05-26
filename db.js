@@ -81,13 +81,6 @@ exports.registerUser = function(first, last, email, password) {
 //         [email, password]
 //     );
 // };
-exports.profile = function(age, city, homepage, userId) {
-    return db.query(
-        `INSERT INTO user_profiles (age, city, homepage, user_id)
-		VALUES ($1, $2, $3, $4) RETURNING age, city, homepage, user_id`,
-        [age, city, homepage, userId]
-    );
-};
 // ========================================================
 // ================ Petition ==============================
 // ========================================================
@@ -132,6 +125,13 @@ module.exports.getSignersByCity = function getSignersByCity(city) {
 // ================ Profile ===============================
 // ========================================================
 
+exports.profile = function(age, city, homepage, userId) {
+    return db.query(
+        `INSERT INTO user_profiles (age, city, homepage, user_id)
+		VALUES ($1, $2, $3, $4) RETURNING age, city, homepage, user_id`,
+        [age, city, homepage, userId]
+    );
+};
 module.exports.updateUser = function updateUser(first, last, email, user_id) {
     return db.query(
         `
