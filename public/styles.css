@@ -1,16 +1,44 @@
 body {
+    margin: 0;
     font-family: sans-serif;
+    color: black;
 }
-a ul link {
+a,
+ul,
+link {
     text-decoration: none;
     cursor: pointer;
 }
-label,
+header {
+}
+/* navigation*/
+nav {
+    background-color: #d61d1d;
+    display: flex;
+}
+nav a {
+    /* display: inline-block; */
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+}
+nav a:hover {
+    background-color: #f23232;
+    color: white;
+}
+
+.hero img {
+    width: 60%;
+
+    object-fit: cover;
+}
+/* label,
 canvas {
-    display: block;
-    margin-bottom: 1em;
-    margin-left: 1em;
+display: block;
+margin-bottom: 1em;
+margin-left: 1em;
 }
 .canv {
-    border: 1px solid;
-}
+border: 1px solid;
+} */
+/* header */
