@@ -20,6 +20,10 @@ a {
     flex-wrap: wrap;
     flex-direction: column;
 }
+canvas {
+    background-color: white;
+    object-fit: contain;
+}
 /*
 */
 /* ----------------------- navigation ----------------------------*/
@@ -83,11 +87,9 @@ nav a:hover {
 form {
     display: flex;
     flex-wrap: wrap;
-    background-color: white;
 }
 form > * {
     flex: 1 100%;
-    object-fit: contain;
 }
 input[type="button"],
 input[type="submit"],
