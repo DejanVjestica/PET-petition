@@ -136,7 +136,8 @@ app.get("/profile/edit", (req, res) => {
         .then(function(result) {
             res.render("profile_edit", {
                 layout: "main",
-                signer: result.rows[0]
+                signer: result.rows[0],
+                message: "You can edit your personal data"
             });
         })
         .catch(function(err) {
@@ -146,6 +147,7 @@ app.get("/profile/edit", (req, res) => {
 app.post("/profile/edit", (req, res) => {
     const { first, last, email, age, city, homepage, password } = req.body;
     const { userId } = req.session;
+    console.log(first, last, email, homepage, city);
     if (password) {
         db
             .hashPassword(password)
@@ -156,6 +158,8 @@ app.post("/profile/edit", (req, res) => {
                 ]);
             })
             .then(function() {
+                res.session.first = first;
+                res.session.last = last;
                 return res.redirect("/thanks");
             })
             .catch(function(err) {
@@ -167,6 +171,8 @@ app.post("/profile/edit", (req, res) => {
             db.updateUserProfile(age, city, homepage, userId)
         ])
             .then(function() {
+                res.session.first = first;
+                res.session.last = last;
                 return res.redirect("/thanks");
             })
             .catch(function(err) {

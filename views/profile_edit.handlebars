@@ -1,8 +1,5 @@
-<h1>{{message}}</h1>
+
 <form class="edit" method="post">
-	<!-- registration form -->
-	<!-- {{> registration}}
-	{{> profile}} -->
 	<label for="first"><b>First name</b></label>
 	<input type="text" name="first" placeholder="First name" value="{{signer.first}}"/>
 
@@ -20,10 +17,11 @@
 	<input type="text" name="age" placeholder="your age" value="{{signer.age}}"/>
 
 	<label for="city"><b>City</b></label>
-	<input type="text" name="city" placeholder="your city" value="{{signer.age}}"/>
+	<input type="text" name="city" placeholder="your city" value="{{signer.city}}"/>
 
 	<label for="homepage"><b>Homepage</b></label>
 	<input type="text" name="homepage" placeholder="Homepage" value="{{signer.homepage}}"/>
+
 	{{#error}}
     <p>Uh oh, something went wrong. Please try again</p>
     {{/error}}
@@ -31,9 +29,3 @@
 	<input type="hidden" name="_csrf" value="{{csrfToken}}">
 	<input class="submit" type="submit" value="Update">
 </form>
-
-{{first}}
-{{last}}
-{{city}}
-{{age}}
-{{email}}
