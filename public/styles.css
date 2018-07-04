@@ -27,24 +27,33 @@ canvas {
 /*
 */
 /* ----------------------- navigation ----------------------------*/
-nav {
-    background-color: #d61d1d;
+.navbar {
+    justify-content: space-between;
+    display: flex;
+    background-color: #f23232;
 }
-.navFullWith {
-    display: none;
-}
-nav a {
+.navbar a {
     /* display: block; */
     color: white;
     text-align: center;
     padding: 14px 16px;
 }
 nav a:hover {
-    background-color: #f23232;
+    background-color: #d61d1d;
     color: white;
+}
+.navFullWith {
+    display: none;
+}
+.serviceMenu {
+    display: none;
 }
 /* --------------------------- header -------------------------------*/
 .hero {
+    color: white;
+}
+.info {
+    padding: 1em;
 }
 .hero img {
     /* width: 100%; */
@@ -186,5 +195,9 @@ footer {
     .hero img {
         /* width: 100 */
         /* object-fit: contain; */
+    }
+    .serviceMenu {
+        display: flex;
+        float: right;
     }
 }

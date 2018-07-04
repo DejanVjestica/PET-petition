@@ -166,9 +166,18 @@ app.post("/profile/edit", (req, res) => {
                 console.log(err);
             });
     } else {
+        console.log("route/edit: ", first, last, email, homepage, city);
         Promise.all([
             db.updateUserOutPassword(first, last, email, userId),
-            db.updateUserProfile(age, city, homepage, userId)
+            db.updateUserProfile(age, city, homepage, userId),
+            console.log(
+                "route/edit, in promiseAll: ",
+                first,
+                last,
+                email,
+                homepage,
+                city
+            )
         ])
             .then(function() {
                 res.session.first = first;
@@ -176,7 +185,7 @@ app.post("/profile/edit", (req, res) => {
                 return res.redirect("/thanks");
             })
             .catch(function(err) {
-                console.log(err);
+                console.log("catch error else: ", err);
             });
     }
 });

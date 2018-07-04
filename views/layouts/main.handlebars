@@ -10,21 +10,23 @@
 	<body class="flexContainer">
 
 		<!-- navigation -->
-		{{> nav}}
-		{{> navlogin}}
+		<section class="navbar">
+			{{> nav}}
+			<!-- {{> navlogin}} -->
+		</section>
 
 		<!-- image -->
 		<section class="hero flex1">
 			{{> img}}
+			{{> info}}
 		</section>
 		<!-- info section -->
 		<!-- <section class="info flex60">
 		</section> -->
 		<!-- main content -->
 		<section class="main flex2">
+			<h1>{{message}}</h1>
 
-			{{> info}}
-			<br>
 			{{{ body }}}
 		</section>
 		<!-- footer -->
