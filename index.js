@@ -99,13 +99,11 @@ app.post("/register", (req, res) => {
 app.get("/profile", (req, res) => {
     res.render("profile", {
         layout: "main",
-        message: req.session.first + " please tell us more about you self"
-        // error: "email already exist, please use diferent one"
+        message: req.session.first + " please tell us more about you self",
+        error: "email already exist, please use diferent one"
     });
-    // res.redirect("/register");
 });
 app.post("/profile", requireNoUserId, (req, res) => {
-    // res.redirect("/register");
     let age, city, homepage;
     db
         .profile(
@@ -121,7 +119,6 @@ app.post("/profile", requireNoUserId, (req, res) => {
             req.session.age = age;
             req.session.city = city;
             req.session.homepage = homepage;
-            // console.log(age, city, homepage);
             res.redirect("/petition");
         })
         .catch(function(e) {
@@ -145,28 +142,33 @@ app.get("/profile/edit", (req, res) => {
         });
 });
 app.post("/profile/edit", (req, res) => {
+    console.log("body:", req.body, "sesssion:", req.session);
     const { first, last, email, age, city, homepage, password } = req.body;
     const { userId } = req.session;
-    console.log(first, last, email, homepage, city);
+    // console.log(first, last, email, homepage, city);
     if (password) {
+        console.log("inside if passwort", password);
         db
             .hashPassword(password)
             .then(function(hashedPassword) {
+                console.log(hashedPassword);
                 Promise.all([
                     db.updateUser(first, last, email, hashedPassword, userId),
                     db.updateUserProfile(age, city, homepage, userId)
-                ]);
+                ]).catch(err => {
+                    console.log(err);
+                });
             })
             .then(function() {
-                res.session.first = first;
-                res.session.last = last;
+                req.session.first = first;
+                req.session.last = last;
                 return res.redirect("/thanks");
             })
             .catch(function(err) {
                 console.log(err);
             });
     } else {
-        console.log("route/edit: ", first, last, email, homepage, city);
+        // console.log("route/edit: ", first, last, email, homepage, city);
         Promise.all([
             db.updateUserOutPassword(first, last, email, userId),
             db.updateUserProfile(age, city, homepage, userId),
@@ -180,8 +182,8 @@ app.post("/profile/edit", (req, res) => {
             )
         ])
             .then(function() {
-                res.session.first = first;
-                res.session.last = last;
+                req.session.first = first;
+                req.session.last = last;
                 return res.redirect("/thanks");
             })
             .catch(function(err) {

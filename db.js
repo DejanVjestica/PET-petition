@@ -45,16 +45,7 @@ exports.checkPassword = function(
 // ========================================================
 // ================ Login and Registration ================
 // ========================================================
-// exports.getUserByEmail = function(email) {
-//     return db.query(`SELECT * FROM users WHERE email = $1`, [email]);
-// `
-// SELECT first, last, hash_password, users.id as user_id, signatures.id as sig_id
-// FROM users
-// LEFT JOIN signatures
-// ON signatures.user_id = users.id
-// WHERE email = $1
-// `
-// };
+
 exports.getUserByEmail = function(email) {
     return db.query(
         `
@@ -78,13 +69,7 @@ exports.registerUser = function(first, last, email, password) {
         [first, last, email, password]
     );
 };
-// exports.login = function(email, password) {
-//     return db.query(
-//         `INSERT INTO users (email, hash_password)
-// 		VALUES ($1, $2) RETURNING id`,
-//         [email, password]
-//     );
-// };
+
 // ========================================================
 // ================ Petition ==============================
 // ========================================================
@@ -156,7 +141,7 @@ module.exports.updateUser = function updateUser(
     return db.query(
         `
         UPDATE users
-        SET first = $1, last = $2, email = $3, password = $4
+        SET first = $1, last = $2, email = $3, hash_password = $4
         WHERE id = $5
         `,
         [first, last, email, password, user_id]
