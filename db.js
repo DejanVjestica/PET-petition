@@ -98,7 +98,7 @@ exports.getSigners = function() {
 	   ON users.id = user_profiles.user_id;
 	   `);
 };
-module.exports.getSignersByCity = function getSignersByCity(city) {
+exports.getSignersByCity = function getSignersByCity(city) {
     return db.query(
         `
         SELECT first, last
@@ -121,17 +121,7 @@ exports.profile = function(age, city, homepage, userId) {
         [age, city, homepage, userId]
     );
 };
-// module.exports.updateUser = function updateUser(first, last, email, user_id) {
-//     return db.query(
-//         `
-//        UPDATE users
-//        SET first = $1, last = $2, email = $3
-//        WHERE id = $4
-//        `,
-//         [first, last, email, user_id]
-//     );
-// };
-module.exports.updateUser = function updateUser(
+exports.updateUser = function updateUser(
     first,
     last,
     email,
@@ -147,7 +137,7 @@ module.exports.updateUser = function updateUser(
         [first, last, email, password, user_id]
     );
 };
-module.exports.updateUserProfile = function updateUserProfile(
+exports.updateUserProfile = function updateUserProfile(
     age,
     city,
     homepage,
@@ -162,7 +152,7 @@ module.exports.updateUserProfile = function updateUserProfile(
         [age, city, homepage, user_id]
     );
 };
-module.exports.updateUserOutPassword = function updateUser(
+exports.updateUserOutPassword = function updateUser(
     first,
     last,
     email,
@@ -177,7 +167,7 @@ module.exports.updateUserOutPassword = function updateUser(
         [first, last, email, user_id]
     );
 };
-module.exports.getProfile = function getProfile(id) {
+exports.getProfile = function getProfile(id) {
     return db.query(
         `
         SELECT *
