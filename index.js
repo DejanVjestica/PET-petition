@@ -213,8 +213,8 @@ app.post("/login", requireLoggedOut, (req, res) => {
                     }
                 });
         })
-        .catch(function(e) {
-            console.log("login route get hashPassword", e);
+        .catch(function() {
+            // console.log("login route get hashPassword", e);
             res.render("login", {
                 layout: "main",
                 message: "Login to your account",
